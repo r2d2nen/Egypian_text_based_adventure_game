@@ -1,0 +1,161 @@
+
+
+i finger,         CURRENTROOM: 0,     Last input: poke cactus
+
+drink wine,         CURRENTROOM: 3,     Last input: drink vine
+
+nice,         CURRENTROOM: 6,     Last input: s
+
+use rope,         CURRENTROOM: 0,     Last input: r
+
+look at cactus,         CURRENTROOM: 0,     Last input: look around
+
+investigate cactus,         CURRENTROOM: 0,     Last input: look at cactus
+
+feel around,         CURRENTROOM: 1,     Last input: look around
+
+walk forward,         CURRENTROOM: 1,     Last input: gadd
+
+walk foreward,         CURRENTROOM: 1,     Last input: walk forward
+
+ligth torch,         CURRENTROOM: 1,     Last input: bag
+
+enter f,         CURRENTROOM: 4,     Last input: i 3 baskets
+
+open 1 sarcophagus,         CURRENTROOM: 7,     Last input: gadd
+
+open 1 sarcophagus,         CURRENTROOM: 7,     Last input: s
+
+duck,         CURRENTROOM: 7,     Last input: s
+
+look ar sand,         CURRENTROOM: 5,     Last input: look around
+
+look at shinx,         CURRENTROOM: 9,     Last input: l
+
+drink wine,         CURRENTROOM: 3,     Last input: l
+
+i cactus,         CURRENTROOM: 0,     Last input: gadd
+
+burn cactus,         CURRENTROOM: 0,     Last input: special commands
+
+war painting,         CURRENTROOM: 0,     Last input: s
+
+use ash fro war painting,         CURRENTROOM: 0,     Last input:   temp  
+
+prepare,         CURRENTROOM: 0,     Last input:   temp  
+
+prepare for an expedition,         CURRENTROOM: 0,     Last input: prepare
+
+put on warpaint,         CURRENTROOM: 0,     Last input: s
+
+warpaint self,         CURRENTROOM: 0,     Last input: put on warpaint
+
+eat warpaint,         CURRENTROOM: 0,     Last input: warpaint self
+
+apply war paint,         CURRENTROOM: 0,     Last input: eat warpaint
+
+hug cactus,         CURRENTROOM: 0,     Last input: s
+
+hug,         CURRENTROOM: 0,     Last input: gadd
+
+open cactus,         CURRENTROOM: 0,     Last input: i cactus
+
+note special,         CURRENTROOM: 0,     Last input: open cactus
+
+note special cactus,         CURRENTROOM: 0,     Last input: note special
+
+smash cactus,         CURRENTROOM: 0,     Last input: note special cactus
+
+make cactus cream,         CURRENTROOM: 0,     Last input: smash cactus
+
+punch cactus,         CURRENTROOM: 0,     Last input: make cactus cream
+
+hit cactus,         CURRENTROOM: 0,     Last input: punch cactus
+
+suck on finger,         CURRENTROOM: 0,     Last input: poke cactus
+
+see how many it is,         CURRENTROOM: 0,     Last input: drop sand
+
+see how many it is,         CURRENTROOM: 0,     Last input: i sand
+
+s sand,         CURRENTROOM: 0,     Last input: see how many it is
+
+see how much it is,         CURRENTROOM: 0,     Last input: i sand
+
+no,         CURRENTROOM: 0,     Last input: count sand
+
+paint spice,         CURRENTROOM: 4,     Last input: f
+
+mix spices with water,         CURRENTROOM: 7,     Last input: fill bottle water
+
+sl,         CURRENTROOM: 0,     Last input: i 2 rope
+
+light tmorch,         CURRENTROOM: 1,     Last input: open gate
+
+get my sword,         CURRENTROOM: 0,     Last input:   temp  
+
+draw my sword,         CURRENTROOM: 0,     Last input: get my sword
+
+say hello,         CURRENTROOM: 0,     Last input: draw my sword
+
+run away,         CURRENTROOM: 0,     Last input: say hello
+
+run away,         CURRENTROOM: 0,     Last input: open the gate
+
+ligth torch,         CURRENTROOM: 1,     Last input: run away
+
+invastigate bug,         CURRENTROOM: 1,     Last input: investigate statue
+
+enter hidden dorr,         CURRENTROOM: 1,     Last input: pick up bug
+
+enter hiden dorr,         CURRENTROOM: 1,     Last input: enter hidden dorr
+
+enter hiden door,         CURRENTROOM: 1,     Last input: enter hiden dorr
+
+invasegate potion,         CURRENTROOM: 3,     Last input: take potion
+
+cut vine,         CURRENTROOM: 3,     Last input: t 1 vine
+
+i1 ra,         CURRENTROOM: 6,     Last input: r
+
+'null',         CURRENTROOM: 6,     Last input:  t 2 anubis
+
+\t,         CURRENTROOM: 6,     Last input: 'null'
+
+cut with sword,         CURRENTROOM: 5,     Last input: l
+
+use sword,         CURRENTROOM: 5,     Last input: cut with sword
+
+#win#,         CURRENTROOM: 1,     Last input: fix bug
+
+cake,         CURRENTROOM: 0,     Last input: bag
+
+yes,         CURRENTROOM: 0,     Last input: eat cake
+
+sand,         CURRENTROOM: 0,     Last input: s
+
+cut the vine,         CURRENTROOM: 3,     Last input: l
+
+grip the hoe,         CURRENTROOM: 3,     Last input: cut the vine
+
+jump with the rope,         CURRENTROOM: 3,     Last input: bag
+
+run with the rope,         CURRENTROOM: 3,     Last input: jump with the rope
+
+eat birds nest,         CURRENTROOM: 0,     Last input: t birds nest
+
+smash pyramid,         CURRENTROOM: 0,     Last input: eat pyramid
+
+genreal add,         CURRENTROOM: 0,     Last input: open gate
+
+e general,         CURRENTROOM: 0,     Last input: eat general
+
+lick cactus,         CURRENTROOM: 0,     Last input: poke cactus
+
+promote cat,         CURRENTROOM: 0,     Last input: promote super general
+
+e,         CURRENTROOM: 0,     Last input: promote cat
+
+promote smell,         CURRENTROOM: 0,     Last input: look
+
+d6 super general,         CURRENTROOM: 0,     Last input: d 6 birds nest

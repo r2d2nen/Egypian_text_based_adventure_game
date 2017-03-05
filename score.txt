@@ -1,0 +1,16 @@
+0  Materia
+0  R2D2
+3  ^CAbort
+4  Materia
+2  Vektor
+1  Gullik
+6  Björn Franzén
+6  Materia
+4  Ragnar Rök
+12  Björn
+11  LazerBuoy
+3 Gullik
+13 Vektor
+13 Björn
+15 Vektor
+2  Davelni

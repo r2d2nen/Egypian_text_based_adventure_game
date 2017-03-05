@@ -1,0 +1,3 @@
+
+
+fix talk general general gone,         CURRENTROOM: 0,     Last input: talk general
