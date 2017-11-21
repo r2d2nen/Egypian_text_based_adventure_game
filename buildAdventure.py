@@ -10,7 +10,7 @@ import re #To count numbers
 import random 
 
 # importin music to the game. Here is the music mode set
-musicMode = "on"
+musicMode = "off"
 if musicMode == "on":
     import vlc
     music1 = vlc.MediaPlayer("Jones.mp3") #Indiana Jones
@@ -36,8 +36,10 @@ rooms = [
 #global variables
 bag = ["torch", "rope", "cake"]
 tooHeavy = [
-    "vine","painting", "sarcophagus", "big cat", "ra", "anubis", "thot", "osiris", "statue", "bug", "fountain","big cat"]
+    "vine","painting", "sarcophagus", "big cat", "ra", "anubis", "thot", "osiris", "statue", "bug", "fountain","big cat", "hidden door"]
+notDropAble = []
 hand = []
+speakJoseph = 0
 lastRoom = 0
 currentRoom = 0
 torchLit = False
@@ -52,7 +54,9 @@ takenNose = False
 sarcophagusOpen = False
 timesTalkedWeirdMan = 0
 toxicated = False
+eggsFound = False
 listAt = "room"
+
 if musicMode == "on":
     currentMusic = music1
     
@@ -190,7 +194,8 @@ My first in my third is the charm of the wood
 And type of whatever is noble and good:
 Do you ask for my second? - I've mentioned it twice,
 Nay, in these very lines you will meet with it thrice.
-What am I?"""]
+What am I?""",
+"What falls but never breaks and breaks but never falls?"]
 
 # 0 north, 1 east, 2 south 3 vest
 faceDirection = 0
@@ -252,11 +257,37 @@ def end():
     print "If you want to save your score sign with at least 2 letters.\n\n"
     
     name = raw_input("Name >>> ")
-    if len(name) > 2:
-        #Append the score to the file
+    if len(name) > 1:
+        #Append the score to the score file
         with open('score.txt', 'a') as txt:
             txt.write('\n' + str(len(easterEggsFound)) + '  ' + name)
+            
+        import random, string
+
+        def createverification(inputList):
+            verification = ""
     
+            #at least 5 element in list
+            for ix in xrange(5):
+                if len(inputList)<=5:
+                    inputList.append("".join([random.choice(string.lowercase) for i in xrange(6)]))
+    
+            #at least 5 characters in each element
+            for ix in xrange(5):
+                while len(inputList[-(ix+1)])<=8:
+                    inputList[-(ix+1)] = inputList[-(ix+1)] + random.choice(string.lowercase)
+    
+            #Take the i letter from the last 5 easter eggs i = [0,7]
+            for i0 in xrange(7):
+                for i1 in xrange(5):
+                    verification = verification + inputList[-(i1+1)][i0]
+            
+            return verification
+
+        #Append the score and verification string to the file verification file
+        with open('scorex.txt', 'a') as txt:
+            txt.write('\n' + str(len(easterEggsFound)) + '  ' + name + '  ' + createverification(easterEggsFound))
+        
     print "\n \n"
     print(" ----------------------------------------\n")
     print("|     Thank you for playing my game      |")
@@ -379,11 +410,8 @@ def highScore():
     with open(txt) as f_in:
         lines = (line.rstrip() for line in f_in) 
         lines = list(line for line in lines if line) # Non-blank lines in a list
-    #print lines
-    #content = txt.readlines()
-    content = lines
-    #content[-1] = content[-1]+ '\n'
 
+    content = lines
 
     def sort(content):
         values = []
@@ -405,10 +433,6 @@ def highScore():
                     mean.append(content[i])
             return (sort(high)+mean+sort(low))
     
-
-
-
-    #txt.close()
     sortedList =  sort(content)
     print "\n".join(sortedList)
     return True
@@ -430,7 +454,7 @@ def generalAdd():
     
     print "\n\nNow for the specifics for your add.\nWhrite a character 2 times if you want two of those in your add.\nWrite zero or plenty of the following characters:"
     print "\n\"S\" to add a synonym to the object"
-    print "\"O\" to add a object that must be present"
+    print "\"O\" to add a object that must be present, and named"
     print "\"A\" to add a object to the game"
     print "\"R\" to remove a object from the game that is present"
     print "\"E\" to add a easter egg (use this responsibly)"
@@ -484,7 +508,7 @@ def generalAdd():
             print "\n"
             newObject = raw_input("Explaining >>> ")
             line4+="                #fix comment:" +newObject+"\n"
-        elif x == "x":
+        elif x == "s":
             print "\n"
             newObject = raw_input("Synonym >>> ")
             line4+="                #fix Synonym: or \"" +newObject+"\" in playerText\n"
@@ -555,17 +579,23 @@ def always(playerText):
                     elif temp[-1]== "smell":
                         newEgg("smell")
             elif len(temp)>2:
-                if (temp[-2] +" "+ temp[-1]) in rooms[currentRoom][0]:
+                if (temp[-2] +" "+ temp[-1]) in tooHeavy:
+                    print("%s is way too heavy."% (temp[-2] +" "+ temp[-1]))
+                elif (temp[-2] +" "+ temp[-1]) in rooms[currentRoom][0]:
                     print("You picked up the %s"% (temp[-2] +" "+ temp[-1]))
                     rooms[currentRoom][0].remove((temp[-2] +" "+ temp[-1]))
                     bag.append((temp[-2] +" "+ temp[-1]))
                 elif len(temp)>3:
-                    if (temp[-3] +" "+ temp[-2] +" "+ temp[-1]) in rooms[currentRoom][0]:
+                    if (temp[-3] +" "+ temp[-2] +" "+ temp[-1]) in tooHeavy:
+                        print("%s is way too heavy."% (temp[-3] +" "+ temp[-2] +" "+ temp[-1]))
+                    elif (temp[-3] +" "+ temp[-2] +" "+ temp[-1]) in rooms[currentRoom][0]:
                         print("You picked up the %s"% (temp[-3] +" "+ temp[-2] +" "+ temp[-1]))
                         rooms[currentRoom][0].remove((temp[-3] +" "+ temp[-2] +" "+ temp[-1]))
                         bag.append((temp[-3] +" "+ temp[-2] +" "+ temp[-1]))
                     elif len(temp)>4:
-                        if (temp[-4] +" "+ temp[-3] +" "+ temp[-2] +" "+ temp[-1]) in rooms[currentRoom][0]:
+                        if (temp[-4] +" "+ temp[-3] +" "+ temp[-2] +" "+ temp[-1]) in tooHeavy:
+                            print("%s is way too heavy."% (temp[-4] +" "+ temp[-3] +" "+ temp[-2] +" "+ temp[-1]))
+                        elif (temp[-4] +" "+ temp[-3] +" "+ temp[-2] +" "+ temp[-1]) in rooms[currentRoom][0]:
                             print("You picked up the %s"% (temp[-4] +" "+ temp[-3] +" "+ temp[-2] +" "+ temp[-1]))
                             rooms[currentRoom][0].remove((temp[-4] +" "+ temp[-3] +" "+ temp[-2] +" "+ temp[-1]))
                             bag.append((temp[-4] +" "+ temp[-3] +" "+ temp[-2] +" "+ temp[-1]))
@@ -580,6 +610,8 @@ def always(playerText):
         if len(temp)>1:
             if temp[-1] == "slime" and "slime" in bag:
                 print "You can't even pick it up from the bag"
+            elif temp[-1] == "handflower" and "handflower" in bag:
+                print "You can't drop the handflower.\nYou think that this is weird.\n(And the programmer thinks this is weird)"
             elif temp[-1] in bag:
                 print"You dropped the", temp[-1]
                 rooms[currentRoom][0].append(temp[-1])
@@ -590,7 +622,7 @@ def always(playerText):
                 if temp[-1] == "torch":
                     torchLit = False
                 hand.remove(temp[-1])
-                newEgg("BlackOut")
+                newEgg("black out")
             elif len(temp)>2:   
                 if (temp[-2] +" "+ temp[-1]) in bag:
                     print("You dropped the %s"% (temp[-2] +" "+ temp[-1]))
@@ -620,7 +652,7 @@ def always(playerText):
         if takenNose == False:
             bag.append("nose")
             takenNose = True
-        newEgg("GotNose")
+        newEgg("got nose")
       
     #Occurs often enough that it erns a method of its' own.
     def investigate(text):
@@ -767,6 +799,8 @@ def always(playerText):
         global timesTalkedWeirdMan
         global toxicated
         global listAt
+        global speakJoseph
+        
         
         if "help" == playerText or "info" == playerText:
             print " \n"
@@ -774,7 +808,7 @@ def always(playerText):
             print("|   Here are some avilable commands:     |")
             print("|                                        |")
             print("|    \"open bag\"                   (bag)  |")
-            print("|    \"search (room)\"                (s)  |")
+            print("|    \"search room\"                  (s)  |")
             print("|    \"take\"                         (t)  |")
             print("|    \"drop\"                         (d)  |")
             print("|    \"inspect (object)\"             (i)  |")
@@ -824,11 +858,206 @@ def always(playerText):
                     print "\nSo far you have counted",i, "grains"
                 time.sleep(1)
         
-        elif investigate(playerText) and " potion" in playerText:
-            if ("potion" in rooms[currentRoom][0] or "potion" in bag):
-                print "There seems to be a thick flaoting black liquid inside this brown glass bottle. "
+        elif "hamon " in playerText and " cactus" in playerText:
+            if("cactus" in rooms[currentRoom][0] or "cactus" in bag):
+                print "You send your overflowing YELLOW BURST HAMON OVERDRIVU into the cactus. It explodes magnificently. Into several pieces. The cactus needles fly all over the place. "
+                rooms[currentRoom][0].append("cactus piece")
+                rooms[currentRoom][0].append("another cactus piece")
+                rooms[currentRoom][0].append("cactus needles")
+                if "cactus" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("cactus")
+                elif "cactus" in bag:
+                    bag.remove("cactus")
             else:
                 print "Hmm... I can't find it."
+        
+        elif "generalise " in playerText and " general relativity" in playerText:
+            if("general relativity" in rooms[currentRoom][0] or "general relativity" in bag):
+                print "You discover Grand Unified Theory. Sehr GUT. Einstein is dancing in his grave. I think that's a good thing? Anyway, you get a price for a distinct absence of bells."
+                rooms[currentRoom][0].append("grand unified theory")
+                rooms[currentRoom][0].append("no bell price")
+                if "general relativity" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("general relativity")
+                elif "general relativity" in bag:
+                    bag.remove("general relativity")
+                newEgg("Physics NEEEEEEEEEEeEEEEEEEEErD")
+                #fix comment:I know this is rather difficult to find. But I'm planning to create more clues, so that more people will find these easter eggs :3
+            else:
+                print "Hmm... I can't find it."
+                
+        elif investigate(playerText) and " door" in playerText and currentRoom != 0:
+            print "This door looks like all the other doors. I bether not get lost in here"
+        
+        elif investigate(playerText) and " potion" in playerText:
+            if ("potion" in rooms[currentRoom][0] or "potion" in bag):
+                print "There seems to be a thick floating black liquid inside this brown glass bottle. "
+            else:
+                print "Hmm... I can't find it."
+        
+        elif "walk forward" == playerText:
+            print "you take a tiny step forward"
+            
+        elif "walk left" == playerText:
+            print "you take a tiny step left"
+        
+        elif "walk right" == playerText:
+            print "you take a tiny step right"
+         
+        
+        elif "grow " in playerText and " baby dinosaur" in playerText:
+            if("baby dinosaur" in rooms[currentRoom][0] or "baby dinosaur" in bag):
+                print "In order for the baby dinosaur to grow you need to feed it with something."
+                #fix Synonym: or "" in playerText
+            else:
+                print "Hmm... I can't find it."
+
+        elif "feed " in playerText and " baby dinosaur" in playerText and " cake" in playerText:
+            if("baby dinosaur" in rooms[currentRoom][0] or "baby dinosaur" in bag) and ("cake" in rooms[currentRoom][0] or "cake" in bag):
+                print "The baby dinosaur grows upp to become Puff the magic dragon"
+                if "baby dinosaur" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("baby dinosaur")
+                elif "baby dinosaur" in bag:
+                    bag.remove("baby dinosaur")
+                rooms[currentRoom][0].append("magic dragon")
+                if "cake" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("cake")
+                elif "cake" in bag:
+                    bag.remove("cake")
+            else:
+                print "Hmm... I can't find it."
+
+        elif "talk " in playerText and " joseph" in playerText:
+            if("joseph" in rooms[currentRoom][0] or "joseph" in bag):
+                if speakJoseph == 0:
+                    speakJoseph = 1
+                    print "\"He-llo? Could you say that again? More slowly? In a language I understand? Depending on what you said, I might kick your ass! Oh, so that's what you said. Well then.\" He continues to pose. After a while he gets bored with being the designated poser and goes and fetches a replacement, who looks like quite a delinquent! "
+                    rooms[currentRoom][0].append("jotaro")
+                    #fix comment:There should be some kind of if-statement here. Want different dialogue second time
+                elif speakJoseph == 1:
+                    print "\"Hello again\", he says while contorting his body in ways you thought were impossible. \"Could you perhaps do me a favour? I am veery thirsty, and would like something to drink. Preferably coke, but if you can't find anything better I might settle with some suspicious potion lying about in this pyramid or something. Not that anything like that exists.\""
+                   #fix comment:This should happen the second time you speak to joseph
+                
+            else:
+                print "Hmm... I can't find it."
+                
+                
+        
+
+        elif "give " in playerText and " joseph" in playerText and " potion" in playerText:
+            if("joseph" in rooms[currentRoom][0] or "joseph" in bag) and ("potion" in rooms[currentRoom][0] or "potion" in bag):
+                print "You give Joseph the potion. He drinks the potion. Suddenly he is wearing a dress and carrying large bottles of tequila. You are unsure how this happened. As a reward for your efforts he gives you an ancient piece of arcane knowledge: \"If ever you want to discover a Grand Unified Theory, you can try generalising general relativity, which can be found by promoting a general.\" 'tis good and genuine ancient knowledge."
+                if "potion" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("potion")
+                elif "potion" in bag:
+                    bag.remove("potion")
+            else:
+                print "Hmm... I can't find it."
+
+        elif "poke " in playerText and " joseph" in playerText:
+            if("joseph" in rooms[currentRoom][0] or "joseph" in bag):
+                print "You try to poke Joseph in the stomach. \"Ha, I knew you were going to poke me! Now you'll question why that matters, since you're going to do that anyway\". You say what he said that you'd say. \"I have already replaced my stomach with a cactus!\" You poke the cactus stomache. Your finger stings."
+            else:
+                print "Hmm... I can't find it."
+
+        elif investigate(playerText) and " handflower" in playerText:
+            if("handflower" in rooms[currentRoom][0] or "handflower" in bag):
+                print "A neat flower that grows from your hand. It's very pretty."
+            else:
+                print "Hmm... I can't find it."
+
+
+        elif "eat " in playerText and " handflower" in playerText:
+            if("handflower" in rooms[currentRoom][0] or "handflower" in bag):
+                print "You eat the flower. It grows back. There is no escape. "
+            else:
+                print "Hmm... I can't find it."
+                
+        
+
+        elif "pet " in playerText and " joseph" in playerText:
+            if("joseph" in rooms[currentRoom][0] or "joseph" in bag):
+                print "\"I anticipated that you were going to do that, and have already switched places with you!\" Suddenly, you are the one being pet. You purr softly. "
+            else:
+                print "Hmm... I can't find it."
+
+
+
+        elif "adore " in playerText and " duck" in playerText:
+            if("duck" in rooms[currentRoom][0] or "duck" in bag):
+                print "Well, now you've spent some  precious time drolling over a rubber duck. Please come to your senses and move on. "
+            else:
+                print "Hmm... I can't find it."
+
+        elif ("light match" == playerText or "light a match" in playerText):
+                print "You have no matches, funny enough"
+
+        elif "put " in playerText and " egg" in playerText and " birds nest" in playerText:
+            if("egg" in rooms[currentRoom][0] or "egg" in bag) and ("birds nest" in rooms[currentRoom][0] or "birds nest" in bag):
+                print "\"No, I want to do the Easter bunny happy\""
+            else:
+                print "Hmm... I can't find it."
+
+        elif "eat " in playerText and " joseph" in playerText:
+            if("joseph" in rooms[currentRoom][0] or "joseph" in bag):
+                print "You try to eat Joseph, but he has already smeared himself with batmans shark repellent spray. And since you are part shark, you are unable to eat him. "
+            else:
+                print "Hmm... I can't find it."
+        
+        elif "escape " in playerText and " handflower" in playerText:
+            if("handflower" in rooms[currentRoom][0] or "handflower" in bag):
+                print "You try to escape. But there is no escape."
+            else:
+                print "Hmm... I can't find it."
+
+        elif "eat " in playerText and " jonathan" in playerText:
+            if("jonathan" in rooms[currentRoom][0] or "jonathan" in bag):
+                print "His muscles crunch between your teeth. Ending the Joestar bloodline sure feels great! I am certain nothing bad will come of this, and that they won't at all be needed to save the world."
+                if "jonathan" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("jonathan")
+                elif "jonathan" in bag:
+                    bag.remove("jonathan")
+            else:
+                print "Hmm... I can't find it."
+
+        elif "kill " in playerText and " jonathan" in playerText:
+            if("jonathan" in rooms[currentRoom][0] or "jonathan" in bag):
+                print "You use your eyelasers, a power which you of course have had from the beginning, to pierce Jonathan's brain. Ending the Joestar bloodline sure feels great! I am certain nothing bad will come of this, and that they won't at all be needed to save the world."
+                if "jonathan" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("jonathan")
+                elif "jonathan" in bag:
+                    bag.remove("jonathan")
+            else:
+                print "Hmm... I can't find it."
+
+        elif "pose " in playerText and " jonathan" in playerText:
+            if("jonathan" in rooms[currentRoom][0] or "jonathan" in bag):
+                print "You pose together with Jonathan. You look very fabulous together. It's a bonding experience."
+            else:
+                print "Hmm... I can't find it."
+
+        elif investigate(playerText) and " joseph" in playerText:
+            if("joseph" in rooms[currentRoom][0] or "joseph" in bag):
+                print "Why is he standing like that? And how is he contorting his body like that?! Is it even possible?! "
+            else:
+                print "Hmm... I can't find it."
+
+        elif "feed " in playerText and " baby dinosaur" in playerText and " sword" in playerText:
+            if("baby dinosaur" in rooms[currentRoom][0] or "baby dinosaur" in bag) and ("sword" in rooms[currentRoom][0] or "sword" in bag):
+                print "The baby dinosaur grows upp to become t-rex"
+                if "baby dinosaur" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("baby dinosaur")
+                elif "baby dinosaur" in bag:
+                    bag.remove("baby dinosaur")
+                rooms[currentRoom][0].append("t-rex")
+                if "sword" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("sword")
+                elif "sword" in bag:
+                    bag.remove("sword")
+            else:
+                print "Hmm... I can't find it."
+         
+        elif "walk backwards" == playerText:
+            print "you take a tiny step backward"
         
         elif "anubis" in playerText and "skeleton" in playerText and ("anubis" in rooms[currentRoom][0] or "anubis" in bag) and ("skeleton" in rooms[currentRoom][0] or "skeleton" in bag):
             if "skeleton" in rooms[currentRoom][0]:
@@ -837,20 +1066,20 @@ def always(playerText):
                 bag.remove("skelton")
             print "Anubis likes your gift and gives you a mummy"
             bag.append("mummy")
-            newEgg("Mommy")
+            newEgg("mommy")
         elif "cheer" in playerText and "grumpy cat" in playerText:
             print "Grumpy cat doesn't approve."
         elif "easter is coming" == playerText:
             global easterIsComing
             easterIsComing = True
-        elif ("exit" in playerText or "leave" in playerText or "home" in playerText) and ableToLeave == True:
+        elif ("exit" in playerText or "end" in playerText or "leave" in playerText or "home" in playerText) and ableToLeave == True:
             print "The end is near"
             time.sleep(1)
             end()
         elif ("patch" in playerText or "fix" in playerText or "debug" in playerText or "remove" in playerText or "mend" in playerText) and "bug" in playerText:
             if "bug" in bag or "bug" in rooms[currentRoom][0] and plentyBugs == False:
                 print "Now there are 137 more bugs"
-                newEgg("FixBug")
+                newEgg("fix bug")
                 plentyBugs = True
                 for x in range(0, 135):
                     rooms[currentRoom][0].append("bug")
@@ -918,6 +1147,47 @@ def always(playerText):
                     print "Since it dark you walked in to the wall."
                     print "You can't stand the pain and dies"
                     die()
+                    
+        
+        elif investigate(playerText) and " generic invisible stuff" in playerText:
+            if("generic invisible stuff" in rooms[currentRoom][0] or "generic invisible stuff" in bag):
+                print "You can't see invisible stuff."
+                rooms[currentRoom][0].append("invisible pickaxe")
+                if "generic invisible stuff" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("generic invisible stuff")
+                elif "generic invisible stuff" in bag:
+                    bag.remove("generic invisible stuff")
+            else:
+                print "Hmm... I can't find it."
+
+        elif "swing " in playerText and " sword" in playerText:
+            if("sword" in rooms[currentRoom][0] or "sword" in bag):
+                print "You swing your sword, sword. Even though it is not a diamond sword sword. You can not afford, 'ford, a diamond sword, sword."
+                unavalibleMove = True
+            else:
+                print "Hmm... I can't find it."
+
+        elif investigate(playerText) and " spider donut" in playerText:
+            if("spider donut" in rooms[currentRoom][0] or "spider donut" in bag):
+                print "A donut made with Spider Cider in the batter."
+            else:
+                print "Hmm... I can't find it."
+                
+        elif "cut " in playerText and " vine" in playerText:
+            if("sword" in rooms[currentRoom][0] or "sword" in bag) and ("vine" in rooms[currentRoom][0] or "vine" in bag):
+                print "That would take all day, And I'm no lumberjack."
+            elif("sword" not in rooms[currentRoom][0] and "sword" not in bag) and ("vine" in rooms[currentRoom][0] or "vine" in bag):
+                print "You have no sword to cut it down the vine with"
+            else:
+                print "Hmm... I can't find it."
+
+
+        elif "lumberjack" in playerText:
+            if("vine" in rooms[currentRoom][0] or "vine" in bag):
+                print "You start to sing \"I'm a lumberjack and I'm OK\n I sleep all night and I work all day\"\nAnd then you hear an man's choir sing\n(He's a lumberjack and he's OK...\nExcept this is the wrong guy)"
+            else:
+                print "Hmm... I can't find it."
+        
         elif ("enter left door" == playerText or "left"  == playerText or "l" == playerText) and currentRoom == 0:
             print "There is no door to the left"
         elif ("enter left door" == playerText or "left"  == playerText or "l" == playerText) and currentRoom > 0:
@@ -975,19 +1245,55 @@ def always(playerText):
                     print "Since it dark you walked in to the wall."
                     print "You can't stand the pain and dies"
                     die()
+        
+        
+
+        elif "halp" == playerText:
+                print "Stahp it Dolan!"
+
+        elif "pet " in playerText and " kitty master" in playerText:
+            if("kitty master" in rooms[currentRoom][0] or "kitty master" in bag):
+                print "You consider petting the kitty master, and looks at this sublime being. The kitter master laughs in a friendly manner, sensing your thoughts. The kitty master pets you. You purr softly. The kitty master then proceeds to rub your belly. You are a good kitty and and do not attack him for this. Life is good. "
+                newEgg("inner kitty")
+            else:
+                print "Hmm... I can't find it."
+        
+        elif "unprepare for the expedition" == playerText:
+                print "No, this is exciting"
+        
+        elif "inspect" == playerText:
+            print "inspect what? I don't know what you are thinking of. You have to tell me."
+            
+        elif "i'm thinking about" in playerText or "im thinking about" in playerText:
+            print "I don't really care, now tell me what to do."
+        
+        elif "walk around pyramid" == playerText:
+            print "You take a strol ending up where you started"
+        
         elif "open" in playerText and "sarcophagus" in playerText:
             if ("sarcophagus" in rooms[currentRoom][0] or "sarcophagus" in bag):
                 if sarcophagusOpen == False:
-                    print "You take a look inside and finds the sarcophagus.\n You find a treasure and a duck."
+                    print "You take a look inside and finds a treasure and a duck."
                     rooms[currentRoom][0].append("treasure")
                     rooms[currentRoom][0].append("duck")
                     sarcophagusOpen = True
                 elif sarcophagusOpen == True:
                     print "I't is still opened"
         
+        elif "clear" == playerText:
+            print"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+        
         elif "drink" in playerText and "vine" in playerText:
             if "vine" in rooms[currentRoom][0] or  "vine" in bag:
                 print "You should learn how to spell \"wine\" :P"
+            else:
+                print "Hmm... I can't find it."
+                
+        elif "drink" in playerText and "wine" in playerText:
+            if "vine" in rooms[currentRoom][0] or  "vine" in bag:
+                print "There is no wine in this room, only a \"vine\""
+                if "potion" in rooms[currentRoom][0] or  "potion" in bag:
+                    print "But hey! I got a potion I can drink."
             else:
                 print "Hmm... I can't find it."
 
@@ -1016,7 +1322,7 @@ def always(playerText):
             print "You now have a water bottle."
             bag.append("water bottle")
             bag.remove("bleach bottle")
-            newEgg("waterBottle")
+            newEgg("water bottle")
         
         elif "walk" == playerText or "breath" == playerText or "die" == playerText or "jump" == playerText:
             print "Now you are being silly. ^^"
@@ -1028,7 +1334,7 @@ def always(playerText):
         elif "special commands" == playerText:
             
             print "     easter egg         (reveals found easter eggs)"
-            print "     easter is coming   (You be informrd when you find a easter egg)"
+            print "     easter is coming   (You will be informed when you find a easter egg)"
             print "     generalAdd  (gadd) (Add a general command to the game)"
             print "     CTRL + C           (This is cheating and not allowed)"
     
@@ -1069,7 +1375,7 @@ def always(playerText):
         elif "hug " in playerText and " cactus" in playerText:
             if("cactus" in rooms[currentRoom][0] or "cactus" in bag):
                 print "You embrace the cactus. The cactus does not return your affection. Ouch!"
-                newEgg("Desert Hippie")
+                newEgg("desert hippie")
             else:
                 print "Hmm... I can't find it."
 
@@ -1090,7 +1396,7 @@ def always(playerText):
          
         elif investigate(playerText) and " cactus" in playerText:
             if("cactus" in rooms[currentRoom][0] or "cactus" in bag):
-                print "This is a ordinary cactus, noting special. \nNOTHING SPECIAL"
+                print "This is a ordinary cactus, nothing special. \nNOTHING SPECIAL"
             else:
                 print "Hmm... I can't find it."
         
@@ -1110,7 +1416,7 @@ def always(playerText):
                     rooms[currentRoom][0].remove("ash")
                 elif "ash" in bag:
                     bag.remove("ash")
-                newEgg("To War!")
+                newEgg("to war!")
             else:
                 print "Hmm... I can't find it."
         
@@ -1146,6 +1452,7 @@ def always(playerText):
                     die()
                 else:
                     print "your bag is not full enough. You land softly on your feet. Diassapointed you untie yourself"
+                    newEgg("suicide fail")
             else:
                 print "Hmm... I can't find the right objects."
 
@@ -1183,7 +1490,7 @@ def always(playerText):
                 print "Hmm... I can't find it."
         
         elif "spin" == playerText:
-                print "You spinn around plenty of times and feel a bit dizy. Hay that was fun"
+                print "You spin around plenty of times and feel a bit dizy. Hay that was fun"
                 faceDirection = int(4*random.random())
 
         elif "smoke " in playerText and " cactus" in playerText:
@@ -1198,9 +1505,20 @@ def always(playerText):
 
         elif ("incubate " in playerText or "hatch" in playerText) and " egg" in playerText:
             if("egg" in rooms[currentRoom][0] or "egg" in bag):
-                print "you gently put your warm  but on the egg. It seem to be most pleased. You wait a while and the egg hatch into a baby dinosaur!"
+                print "you gently put your warm  butt on the egg. It seem to be most pleased. You wait a while and the egg hatch into a baby dinosaur!"
                 rooms[currentRoom][0].append("baby dinosaur")
-                newEgg("Dinosaur")
+                newEgg("dinosaur")
+                if "egg" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("egg")
+                elif "egg" in bag:
+                    bag.remove("egg")
+            else:
+                print "Hmm... I can't find it."
+                
+        
+        elif ("crack " in playerText or "destroy " in playerText or "open " in playerText )and " egg" in playerText:
+            if("egg" in rooms[currentRoom][0] or "egg" in bag):
+                print "The liquid inside is now smered over the ground. The shell seems useless so you throw them away."
                 if "egg" in rooms[currentRoom][0]:
                     rooms[currentRoom][0].remove("egg")
                 elif "egg" in bag:
@@ -1219,7 +1537,7 @@ def always(playerText):
 
         elif "eat " in playerText and " cactus" in playerText:
             if("cactus" in rooms[currentRoom][0] or "cactus" in bag):
-                print "you really don't fell like having all those spikes in your mouth."
+                print "you really don't feel like having all those spikes in your mouth."
             else:
                 print "Hmm... I can't find it."
 
@@ -1240,7 +1558,7 @@ def always(playerText):
 
         elif "cover " in playerText and " sand" in playerText and " cactus" in playerText:
             if("sand" in rooms[currentRoom][0] or "sand" in bag) and ("cactus" in rooms[currentRoom][0] or "cactus" in bag):
-                print "The cactus is now totaly covered in sand. But the cactus shakes of the sand again since it is properlt trained in doing so"
+                print "The cactus is now totaly covered in sand. But the cactus shakes of the sand again since it is properly trained in doing so"
             else:
                 print "Hmm... I can't find it."
         
@@ -1289,7 +1607,7 @@ def always(playerText):
         elif "torch" in playerText and ("giant spider" in playerText or "spider" in playerText):
             if "torch" in hand and ("giant spider" in rooms[currentRoom][0] or  "giant spider" in bag):
                 print "Congrats! you killed the giant spider"
-                print "A gnome enters and removes the dead spider"
+                print "A gnome enters and removes the dead spider. Then the gnome apparates away."
                 rooms[currentRoom][0].remove("giant spider")
             else:
                 print "Hmm... I haven't lit the torch."
@@ -1431,10 +1749,10 @@ def always(playerText):
                     rooms[currentRoom][0].remove("sand castle")
                 elif "sand castle" in bag:
                     bag.remove("sand castle")
-                if "general" in rooms[currentRoom][0]:
-                    rooms[currentRoom][0].remove("general")
-                elif "general" in bag:
-                    bag.remove("general")
+                if "super commander" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("super commander")
+                elif "super commander" in bag:
+                    bag.remove("super commander")
                 rooms[currentRoom][0].append("super sand castle")
             else:
                 print "Hmm... I can't find the tools."
@@ -1449,10 +1767,18 @@ def always(playerText):
             else:
                 print "Hmm... I can't find the tools."
         
+        elif "pet " in playerText and " jonathan" in playerText:
+            if("jonathan" in rooms[currentRoom][0] or "jonathan" in bag):
+                print "Jonathan curls into a small buff ball. You pet his muscles. They purr softly, while glowing slightly. A flower starts to grow from your hand. "
+                bag.append("handflower")
+                #fix comment:The handflower should be in bag, and difficult to get rid off
+            else:
+                print "Hmm... I can't find it."
+        
         elif " basket" in playerText and " hat" in playerText and "use " in playerText:
             if ("baskets" in rooms[currentRoom][0] or  "baskets" in bag):
                 print "You put a basket on your head and use it as a epic hat."
-                newEgg("niceHat")
+                newEgg("nice hat")
             else:
                 print "Hmm... I can't find the tools."
 
@@ -1470,7 +1796,7 @@ def always(playerText):
             if "ra" in tooHeavy:
                 print "You toppled the statue and can now pick it up"
                 tooHeavy.remove("ra")
-                newEgg("statueGod")
+                newEgg("statue god")
             elif "ra" not in tooHeavy:
                 print "You have already toppled the statue."
         
@@ -1478,7 +1804,7 @@ def always(playerText):
             if "anubis" in tooHeavy:
                 print "You toppled the statue and can now pick it up"
                 tooHeavy.remove("anubis")
-                newEgg("statueGod")
+                newEgg("statue god")
             elif "anubis" not in tooHeavy:
                 print "You have already toppled the statue."
         
@@ -1486,7 +1812,7 @@ def always(playerText):
             if "thot" in tooHeavy:
                 print "You toppled the statue and can now pick it up"
                 tooHeavy.remove("thot")
-                newEgg("statueGod")
+                newEgg("statue god")
             elif "thot" not in tooHeavy:
                 print "You have already toppled the statue."
         
@@ -1494,7 +1820,7 @@ def always(playerText):
             if "osiris" in tooHeavy:
                 print "You toppled the statue and can now pick it up"
                 tooHeavy.remove("osiris")
-                newEgg("statueGod")
+                newEgg("statue god")
             elif "osiris" not in tooHeavy:
                 print "You have already toppled the statue."
         
@@ -1531,6 +1857,12 @@ def always(playerText):
         elif "hidden door" in playerText and "enter" in playerText:
             if "hidden door" in bag or "hidden door" in rooms[currentRoom][0]:
                 print "You can't enter the hidden door since it is hidden ^^"
+            else:
+                print "I can't find it."
+                
+        elif "hidden door" in playerText and "open" in playerText:
+            if "hidden door" in bag or "hidden door" in rooms[currentRoom][0]:
+                print "You can't open the hidden door since it is hidden ^^"
             else:
                 print "I can't find it."
         
@@ -1658,7 +1990,57 @@ def always(playerText):
         
         elif " feet" in playerText and investigate(playerText):
                 print "They smell funny!"
+           
+        
+        elif ("use " in playerText or "put " in playerText) and " duck" in playerText and " treasure" in playerText:
+            if("duck" in rooms[currentRoom][0] or "duck" in bag) and ("treasure" in rooms[currentRoom][0] or "treasure" in bag):
+                print "You put the duck in the pile of treasure. Suddenly, a miracle occurs. The duck comes alive, sprouting a top hat and a tremendous greed. "
+                rooms[currentRoom][0].append("scrooge mcduck")
+                if "duck" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("duck")
+                elif "duck" in bag:
+                    bag.remove("duck")
+            else:
+                print "Hmm... I can't find it."
                 
+                
+        
+        elif "use " in playerText  and " potion" in playerText and " smell" in playerText:
+            if("potion" in rooms[currentRoom][0] or "potion" in bag) and ("smell" in rooms[currentRoom][0] or "smell" in bag):
+                print "You put the smell in the potion. Congratulations, you have created an even more worrying liquid!"
+                rooms[currentRoom][0].append("smelly potion")
+                if "potion" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("potion")
+                elif "potion" in bag:
+                    bag.remove("potion")
+            else:
+                print "Hmm... I can't find it."
+                
+        
+
+        elif "talk " in playerText and " jonathan" in playerText:
+            if("jonathan" in rooms[currentRoom][0] or "jonathan" in bag):
+                print "\"Hello, my name is Jonathan. I am currently on an epic quest to defeat my archnemesis and save the world and so on. Perhaps... you could help me. I am in need of a powerful weapon to defeat the most fearsome of foes. I need... a smelly sock. I believe such can be found in this pyramid. There is a person behind a certain mysterious door who probably smells a lot. Perhaps if you help him out a bit he will reward you with a sock.\" "
+            else:
+                print "Hmm... I can't find it."
+
+        elif investigate(playerText) and " jonathan" in playerText:
+            if("jonathan" in rooms[currentRoom][0] or "jonathan" in bag):
+                print "A big and friendly giant dressed in a collared shirt, breeches, and a pair of long socks with dress shoes. A nobleman by the looks of it. For some reason he is posing a bit. "
+            else:
+                print "Hmm... I can't find it."
+           
+        elif "knock " in playerText and " bizarre door" in playerText:
+            if("bizarre door" in rooms[currentRoom][0] or "bizarre door" in bag):
+                print "You knock on the bizarre door. It swings open and an enormous and muscular person enters the room."
+                rooms[currentRoom][0].append("jonathan")
+            else:
+                print "Hmm... I can't find it."     
+        
+                
+        elif "tickle" in playerText and " programmer" in playerText:
+            print "The programmer giggles like child, and shouts \"BJOOOOORN, why did you add this to the game?!\""
+        
         elif "i" == playerText:
                 print "The empty set is the unique set having no elements; its size or cardinality is zero."
                 newEgg(" ")
@@ -1666,19 +2048,21 @@ def always(playerText):
         elif " egg" in playerText and investigate(playerText):
             if "egg" in bag or "egg" in rooms[currentRoom][0]:
                 print "It is a big white egg with large green spots on it. The egg feels warm."
-                newEgg("Egg")
+                newEgg("egg")
             else:
                 print "Sorry but I can't inspect what's not here"
         
         elif " birds nest" in playerText and investigate(playerText):
             if "birds nest" in bag or "birds nest" in rooms[currentRoom][0]:
-                if "egg" not in bag and "egg" not in rooms[currentRoom][0]:
+                if not eggsFound:
                     print "It's full of feathers and contains plenty of eggs."
                     print "You distribute the eggs in the surroundings"
+                    rooms[currentRoom][0].append("egg")
+                    rooms[currentRoom][0].append("egg")
+                    rooms[currentRoom][0].append("egg")
+                    eggsFound = True
                 else:
                     print "It's full of feathers and contains no eggs."
-                if "egg" not in bag and "egg" not in rooms[currentRoom][0]:
-                    rooms[currentRoom][0].append("egg")
             else:
                 print "Sorry but I can't inspect what's not here"
         elif " rope" in playerText and investigate(playerText):
@@ -1686,8 +2070,8 @@ def always(playerText):
                 print "It's light brown and approximately 10 meters long."
             else:
                 print "You trow up. Ooh! My rope. I got it ... back?!?."
-                print "Do you really want a description. Really..."
-                newEgg("NiceRope")
+                print (bcolors.OKBLUE + "Do you really want a description. Really...")
+                newEgg("nice rope")
                 bag.append("rope")
                 choice = raw_input("\n> " + bcolors.ENDC)
                 choice = choice.lower()
@@ -1703,7 +2087,7 @@ def always(playerText):
                 print "Wonder how manny things i can fit in it."
                 print "Looks like maybe 536,870,912"
                 print "...No wonder it feels heavy"
-                newEgg("NiceBag")
+                newEgg("nice bag")
         
         elif " torch" in playerText and investigate(playerText):
             if "torch" in bag or "torch" in rooms[currentRoom][0] or "torch" in hand:
@@ -1711,7 +2095,7 @@ def always(playerText):
                 print "Hopefully it lasts the whole expedition"
             else:
                 print "Whuut! This should not be possible"
-                newEgg("BrokePhysics")
+                newEgg("broke physics")
         
         elif " pyramid" in playerText and investigate(playerText):
             if "pyramid" in bag or  "pyramid" in rooms[currentRoom][0]:
@@ -1746,7 +2130,7 @@ def always(playerText):
                     print "Its sword looks to be made of real iron."
                 else:
                     print "It's missing its sword"
-                if  "sword" not in (bag and rooms[currentRoom][0]):
+                if  "sword" not in bag and "sword" not in rooms[currentRoom][0]:
                     rooms[currentRoom][0].append("sword")
            else:
                 print "Hmm... I can't find it."
@@ -1762,7 +2146,7 @@ def always(playerText):
            if "painting" in bag or "painting" in rooms[currentRoom][0]:
                 print "Dafuq... Mona Lisa!? But...  You shouldn't be here!"
                 print "Mona Lisa walks away. A Hidden door was behind Mona Lisa"
-                newEgg("MonaLisa")
+                newEgg("mona lisa")
                 rooms[currentRoom][0].remove("painting")
                 rooms[currentRoom][0].append("hidden door")
            else:
@@ -1860,7 +2244,7 @@ def always(playerText):
         elif " mummy" in playerText and investigate(playerText):
             if "mummy" in bag or "mummy" in rooms[currentRoom][0]:
                 print "This mummy sure looks new. The toilet paper is still bleach white."
-                newEgg("InsDangerous")
+                newEgg("inspect dangerous")
         
         elif " toilet paper" in playerText and investigate(playerText):
             if "toilet paper" in bag or "toilet paper" in rooms[currentRoom][0]:
@@ -1908,7 +2292,7 @@ def always(playerText):
             if "giant spider" in bag or "giant spider" in rooms[currentRoom][0]:
                 print "A spider the size of carthorses, eight-eyed,"
                 print "eight-legged, black, hairy, giantic."
-                newEgg("InsDangerous")
+                newEgg("inspect dangerous")
             else:
                 print "Hmm... I can't find it."
         
@@ -2000,7 +2384,7 @@ def always(playerText):
             else:
                 print "Hmm... I can't find it."
 
-        elif "supreme general" in playerText and "eat ":
+        elif "supreme general" in playerText and "eat " in playerText:
             if "supreme general" in rooms[currentRoom][0] or  "supreme general" in bag:
                 print "The nourishment you receive is truly supreme!"
                 if "supreme general" in rooms[currentRoom][0]:
@@ -2145,7 +2529,7 @@ def always(playerText):
             print("Well, that isn't smart!")
             print("The bag realize what you are about to do,")
             print("and eats you instead.")
-            newEgg("EatBag")
+            newEgg("eat bag")
             die()
         elif " torch" in playerText and "eat " in playerText:
             if "torch" in bag:
@@ -2192,7 +2576,7 @@ def always(playerText):
                 choice = choice.lower()
                 if "yes" in choice or "y" in choice:
                     print "No you don't"
-                    newEgg("Liar")
+                    newEgg("liar")
                 elif "no" in choice:
                     print "So don't you tell me to eat it all"
                 else:
@@ -2216,7 +2600,7 @@ def always(playerText):
                 print "I don't eat stone"
            else:
                 print "This is not the gate you're looking for."
-                newEgg("Droid")
+                newEgg("droid")
                 
         elif " skeleton" in playerText and "eat " in playerText:
            if "skeleton" in bag or "skeleton" in rooms[currentRoom][0]:
@@ -2330,7 +2714,7 @@ def always(playerText):
         elif "mellon " in playerText and " mysterious door" in playerText:
             if "mysterious door" in rooms[currentRoom][0] or  "mysterious door" in bag:
                 print "You hear gandalf from the other side \"YOOOU SHALL NOT PAAAASS!\""
-                newEgg("Gandalf")
+                newEgg("gandalf")
             else:
                 print "Hmm... I can't find it."
 
@@ -2381,7 +2765,7 @@ def always(playerText):
                 print "Hmm... I can't find it."
 
         elif "how do you do?" == playerText:
-                print "I'm well, thank you. And you?\nYou don't have to answere, you're playing this game. Obviosly everything is nice "
+                print "I'm well, thank you. And you?\nYou don't have to answer, you're playing this game. Obviosly everything is nice "
 
         elif "tickle " in playerText and " weird old man" in playerText:
             if "weird old man" in rooms[currentRoom][0] or  "weird old man" in bag:
@@ -2426,7 +2810,7 @@ def always(playerText):
                 if takenNose == False:                   
                     bag.append("nose")
                     takenNose = True
-                newEgg("GotNose")
+                newEgg("got nose")
             else:
                 print "Hmm... I can't find it."
                 
@@ -2465,10 +2849,13 @@ def always(playerText):
             else:
                 print "Hmm... I can't find it."
 
+        elif "walk" == playerText:
+                print "You take a strol and end up where you started"
+
         elif "head " in playerText and " baskets" in playerText:
             if "baskets" in rooms[currentRoom][0] or  "baskets" in bag:
                 print "You put a basket on your head and use it as a epic hat."
-                newEgg("niceHat")
+                newEgg("nice hat")
             else:
                 print "Hmm... I can't find it."
 
@@ -2569,17 +2956,13 @@ def always(playerText):
         elif "talk" in playerText and "weird old man" in playerText and (timesTalkedWeirdMan == 3 or "nyan cat" in rooms[currentRoom][0]):
             if "weird old man" in rooms[currentRoom][0] or  "weird old man" in bag:
                 print "The weird old man is now feeling very grateful towards you. \"For this noble mission, rewarded with two gifts you shall be!\" The weird old man pulls off one of his dirty old socks and throws it in your face. It smells horrendous. \"This practical sock, the first gift is!\" The old man seems to think that this was a really generous gift. \"Knowledge, the second gift is. Know this: in the prescence of certain pointy buildings, help can be summoned with the aid of this ancient incantation 'general add'. Heard, I have, that these summoned creatures can be used together with castles of sand.\""
-                newEgg("Dobby")
+                newEgg("dobby")
                 if "smelly sock" not in rooms[currentRoom][0] and  "smelly sock" not in bag:
                     bag.append("smelly sock")
             else:
                 print "Hmm... I can't find it."
 
-        elif "talk" in playerText and "sand" in playerText:
-            if "sand" in rooms[currentRoom][0] or  "sand" in bag:
-                print "I must avenge Oberyn myself. The sand can't walk away and becomes angry."
-            else:
-                print "Hmm... I can't find it."
+       
         
         elif "knock" in playerText and "mysterious door" in playerText:
             if "mysterious door" in rooms[currentRoom][0] or  "mysterious door" in bag:
@@ -2598,6 +2981,8 @@ def always(playerText):
                     bag.append("strange door")
             else:
                 print "Hmm... I can't find it."
+        
+        
         
         elif "reverse" in playerText and "sand" in playerText:
             if "sand" in rooms[currentRoom][0] or  "sand" in bag:
@@ -2671,6 +3056,34 @@ def always(playerText):
             else:
                 print "Hmm... I can't find it."
 
+
+        elif "give " in playerText and " jonathan" in playerText and "smelly sock" in playerText:
+            if("jonathan" in rooms[currentRoom][0] or "jonathan" in bag) and ("smelly sock" in rooms[currentRoom][0] or "smelly sock" in bag):
+                print "\"There are times when a gentleman has to be courageous and fight, even when his opponent is bigger than he is and he knows he's going to lose! With this hamoninfused smelly sock I shall defeat Dio! Oh, but wait a minute. Someone has to be the designated poser by the bizarre door. Could you take over for me, Joseph?\" An even more fabulous person arrives, and stands in the doorway with a mischievous grin on his face, and an inhumane pose on his body. "
+                rooms[currentRoom][0].append("joseph")
+                if "jonathan" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("jonathan")
+                elif "jonathan" in bag:
+                    bag.remove("jonathan")
+                if "smelly sock" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("smelly sock")
+                elif "smelly sock" in bag:
+                    bag.remove("smelly sock")
+            else:
+                print "Hmm... I can't find it."
+                
+        
+
+        elif "poke " in playerText and " jonathan" in playerText:
+            if("jonathan" in rooms[currentRoom][0] or "jonathan" in bag):
+                print "\"That was not very gentemanly of you!\" He looks very shocked. "
+            else:
+                print "Hmm... I can't find it."
+
+
+
+
+
         elif "declare war" in playerText and "super sand castle" in playerText:
             if "super sand castle" in rooms[currentRoom][0] or  "super sand castle" in bag:
                 print "You declare war upon the super sand castle. The super general vows to end your life. The castle is now a hostile super sand castle."
@@ -2682,7 +3095,10 @@ def always(playerText):
                     bag.append("hostile super sand castle")
             else:
                 print "Hmm... I can't find it."
-                
+            
+            
+            
+            
         elif "open" in playerText and "mysterious door" in playerText:
             if "mysterious door" in rooms[currentRoom][0] or  "mysterious door" in bag:
                 print "The door appears to be locked. You hear movements from the other side. I wonder if it is possible to get whatever it is on the other side to open the door..."
@@ -2866,6 +3282,10 @@ def always(playerText):
         elif "push" in playerText and "general" in playerText:
             if "general" in rooms[currentRoom][0] or  "general" in bag:
                 print "You push the general. He flies horisontally away from the pyramid. He just keeps accelerating indefinetly. You think you hear a faint \"Team general flies away again...\" *sparkle*"
+                if "general" in bag:
+                    bag.remove("general")
+                elif "general" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("general")
             else:
                 print "Hmm... I can't find it."
 
@@ -2878,24 +3298,6 @@ def always(playerText):
         elif "poke" in playerText and "ghost" in playerText:
             if "ghost" in rooms[currentRoom][0] or  "ghost" in bag:
                 print "Your finger goes straigt through the ghost. "
-            else:
-                print "Hmm... I can't find it."
-
-        elif "fart" in playerText and "general" in playerText:
-            if "general" in rooms[currentRoom][0] or  "general" in bag:
-                print "You fart in the general direction of the general"
-            else:
-                print "Hmm... I can't find it."
-
-        elif "talk" in playerText and "general" in playerText:
-            if "general" in rooms[currentRoom][0] or  "general" in bag:
-                print "Arrrgh mateys! I be bad at following appropriate stereotypes"
-            else:
-                print "Hmm... I can't find it."
-
-        elif "poke" in playerText and "general" in playerText:
-            if "general" in rooms[currentRoom][0] or  "general" in bag:
-                print "The general orders you to not do that."
             else:
                 print "Hmm... I can't find it."
 
@@ -2952,6 +3354,7 @@ def always(playerText):
             if "hidden door" in rooms[currentRoom][0] or  "hidden door" in bag:
                 print "The hidden door is now extreamly hidden and happy."
                 rooms[currentRoom][0].remove("hidden door")
+                newEgg("gone")
             else:
                 print "Hmm... I can't find it."
 
@@ -3081,7 +3484,7 @@ def always(playerText):
        
         elif ("talk" in playerText or "riddle" in playerText) and "sphinx" in playerText:
             if "sphinx" in rooms[currentRoom][0] or  "sphinx" in bag:
-                number = int(21*random.random())
+                number = int(22*random.random())
                 #print number
                 
                 print "The sphinx presents you with a riddle\n\"", riddle[number], "\""
@@ -3098,12 +3501,29 @@ def always(playerText):
                 print "u feel nerdier."
             else:
                 print "Hmm... I can't find it."
+                
+        elif "talk" in playerText and "ra" in playerText:
+            if "ra" in rooms[currentRoom][0] or  "ra" in bag:
+                print "You open upp your inner heart to Ra and tell the god how you would lik Ra to lighten up you day.\nYou feel disapointed that teh stone statue dos not answer"
+            else:
+                print "Hmm... I can't find it."
+
+        elif "equip " in playerText and " sword"  in playerText:
+            print "no need to equip it if I have it in my bag. I'm verry fast with this things you see. Just tell me what to kill and I'll do my best."
+            unavalibleMove = True
+
+        elif "find chuck norris" == playerText:
+           print "Chuck Norris is dead :(, E's not pinin! E's passed on! This Norris is no more! He has ceased to be! 'E's expired and gone to meet his maker!"
+           newEgg("Chuck Norris")
+
+        elif "\"help\"" == playerText:
+            print "Oh, my!!\n Really, reeeaaally. Nooooo nooooope. I'm not gonna give you this one. try again."
 
         elif "general add" in playerText:
             if "pyramid" in rooms[currentRoom][0] or  "pyramid" in bag:
                 print "Suddenly, there is a general sitting on top of the pyramid. He waves happily towards you."
                 rooms[currentRoom][0].append("general")
-                newEgg("General")
+                newEgg("general")
             else:
                 print "Hmm... I can't find it."
 
@@ -3190,7 +3610,7 @@ def always(playerText):
         elif "swim" in playerText and "treasure" in playerText:
             if "treasure" in rooms[currentRoom][0] or  "treasure" in bag:
                 print "You dive into the treasure and splash around. You feel like Scrouge Mcduck, except you don't feel like a duck. Ok, there might also be other ways in which you are not like Scrooge McDuck, but you know what I mean."
-                newEgg("Scrooge McDuck")
+                newEgg("scrooge McDuck")
             else:
                 print "Hmm... I can't find it."
 
@@ -3280,8 +3700,50 @@ def always(playerText):
             else:
                 print "Hmm... I can't find it."
         
+        elif "fart" in playerText and "general" in playerText:
+            if "general" in rooms[currentRoom][0] or  "general" in bag:
+                print "You fart in the general direction of the general"
+            else:
+                print "Hmm... I can't find it."
+
+        elif "talk" in playerText and "general" in playerText:
+            if "general" in rooms[currentRoom][0] or  "general" in bag:
+                print "Arrrgh mateys! I be bad at following appropriate stereotypes"
+            else:
+                print "Hmm... I can't find it."
+        
+        elif "demote " in playerText and " general" in playerText:
+            if("general" in rooms[currentRoom][0] or "general" in bag):
+                print "The general is demoted to an admiral."
+                rooms[currentRoom][0].append("admiral")
+                if "general" in rooms[currentRoom][0]:
+                    rooms[currentRoom][0].remove("general")
+                elif "general" in bag:
+                    bag.remove("general")
+            else:
+                print "Hmm... I can't find it."
+        
+        elif "poke" in playerText and "general" in playerText:
+            if "general" in rooms[currentRoom][0] or  "general" in bag:
+                print "The general orders you to not do that."
+            else:
+                print "Hmm... I can't find it."
+                
+        
+        elif investigate(playerText) and " admiral" in playerText:
+            if("admiral" in rooms[currentRoom][0] or "admiral" in bag):
+                print "The admiral has an admirable mustache. I mean, it's not as good as the one the general had. Still pretty good though"
+            else:
+                print "Hmm... I can't find it."
+        
         elif "speak " in playerText:
             print "You might wanna try \"talk\" instead of \"speak\""
+        
+        elif "talk" in playerText and "sand" in playerText:
+            if "sand" in rooms[currentRoom][0] or  "sand" in bag:
+                print "I must avenge Oberyn myself. The sand can't walk away and becomes angry."
+            else:
+                print "Hmm... I can't find it."
         
         elif "pet" in playerText or "stroke" in playerText or "scratch belly" in playerText:
             print "There is no time to pet such things."
@@ -3326,7 +3788,7 @@ def always(playerText):
             unavalibleMove = True
             return True
         elif "cheat" in playerText.split():
-            bag.append(playerText.split()[1])
+            bag.append(" ".join(playerText.split()[1:]))
             return True
         elif "sudo" in playerText.split():
             raw_input(bcolors.FAIL + "Password >> "+ bcolors.ENDC)
@@ -3479,9 +3941,11 @@ def start():
     
     print " \n \n \n \n \n"
     print(" ----------------------------------------------------\n")
-    print("|   Welcome to a text adventure created by R2D2      |")
-    print("|                   Version: 2.1                     |")
+    print("|   Welcome to a text adventure created by R2D2*     |")
+    print("|                   Version: 2.3                     |")
     print("|        Want usefull commands? Type: \"help\"         |")
+    print("|                                                    |")
+    print("|              *With help from Bjorn                 |")
     print("\n ----------------------------------------------------")
     print " \n \n \n"
     print "You are in front of an ancient pyramid,"
@@ -3559,7 +4023,7 @@ def start():
                 if gate != "open": 
                     print "The gate havn't been opened yet."
                 elif gate == "open":
-                    print "No! I came her to explore."
+                    print "No! I came here to explore."
             else:
                 print "You can't close the gate when the pyramid is in your bag."
         
@@ -3573,6 +4037,12 @@ def start():
                 enterRoom()
             else:
                 print "You need to open the gate first"
+        elif "cd pyramid" == choice:
+            print "You enter the pyramid and the gate closes behind you. An ancient curse makes it impossible to open the closed gate again. You now need to find a way to lift the curse, so you can return home."
+            print " "
+            stay = False
+            currentRoom = 1
+            enterRoom()
         else:
             print "That command is unknown to me! Try something else."
             unavalibleMove = True
