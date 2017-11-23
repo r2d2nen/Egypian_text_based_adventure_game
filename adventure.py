@@ -1336,6 +1336,7 @@ def always(playerText):
             print "     easter egg         (reveals found easter eggs)"
             print "     easter is coming   (You will be informed when you find a easter egg)"
             print "     generalAdd  (gadd) (Add a general command to the game)"
+            print "     high score         (See the score list)"
             print "     CTRL + C           (This is cheating and not allowed)"
     
             if musicMode == "on":
@@ -3095,7 +3096,10 @@ def always(playerText):
                     bag.append("hostile super sand castle")
             else:
                 print "Hmm... I can't find it."
-                
+            
+            
+            
+            
         elif "open" in playerText and "mysterious door" in playerText:
             if "mysterious door" in rooms[currentRoom][0] or  "mysterious door" in bag:
                 print "The door appears to be locked. You hear movements from the other side. I wonder if it is possible to get whatever it is on the other side to open the door..."

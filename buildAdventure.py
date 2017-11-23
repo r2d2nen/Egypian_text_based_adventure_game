@@ -1336,6 +1336,7 @@ def always(playerText):
             print "     easter egg         (reveals found easter eggs)"
             print "     easter is coming   (You will be informed when you find a easter egg)"
             print "     generalAdd  (gadd) (Add a general command to the game)"
+            print "     high score         (See the score list)"
             print "     CTRL + C           (This is cheating and not allowed)"
     
             if musicMode == "on":
