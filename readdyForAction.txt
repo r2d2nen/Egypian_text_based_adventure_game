@@ -1,2 +1,18 @@
 
 
+
+        elif "adore " in playerText and " duck" in playerText:
+            if("duck" in rooms[currentRoom][0] or "duck" in bag):
+                print "Well, now you've spent some  precious time drolling over a rubber duck. Please come to your senses and move on. "
+            else:
+                print "Hmm... I can't find it."
+
+        elif "light match" == playerText:
+                print "You have no matches, funny enough"
+                #fix Synonym: or "light a match" in playerText
+
+        elif "put " in playerText and " egg" in playerText and " birds nest" in playerText:
+            if("egg" in rooms[currentRoom][0] or "egg" in bag) and ("birds nest" in rooms[currentRoom][0] or "birds nest" in bag):
+                print "\"No, I want to do the Easter bunny happy\""
+            else:
+                print "Hmm... I can't find it."
